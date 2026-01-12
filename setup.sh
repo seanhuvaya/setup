@@ -5,120 +5,50 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NO_COLOR='\033[0m'
 
-# Force the script to run interactively
-if [[ -t 0 ]]; then
-  # Ask for the system name (ensure this is asked interactively)
-  read -p "Please enter your system name: " username
-
-  # Ask for the GitHub username
-  read -p "Please enter your GitHub username: " github_name
-
-  # Ask for the GitHub email
-  read -p "Please enter your GitHub email: " github_email
-else
-  echo -e "${RED}The script is running non-interactively. Please run this script directly in a terminal for full interaction.${NO_COLOR}"
-  exit 1
-fi
-
-# Print the collected values
-echo "System Name: $username"
-echo "GitHub Username: $github_name"
-echo "GitHub Email: $github_email"
-
-if [ -z "$username" ]; then
-        echo "Error: No user specified."
-        exit 1
-fi
-
-ZPROFILE_PATH="/Users/$username/.zprofile"
-
 echo -e "${GREEN}Installing brew...${NO_COLOR}"
-yes '' | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-echo >> "$ZPROFILE_PATH"
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$ZPROFILE_PATH"
-eval "$(/opt/homebrew/bin/brew shellenv)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-APPLICATIONS=(
-        "brave-browser"
-        "git"
-        "rectangle"
-        "spotify"
-        "notion"
-        "cursor"
-        "intellij-idea"
-        "nvm"
-        "postman"
-        "miniconda"
-        "item2"
-)
+echo -e "${GREEN}Adding Homebrew to PATH...${NO_COLOR}"
+echo >> /Users/$USER/.zprofile
+echo 'eval "$(/opt/homebrew/bin/brew shellenv zsh)"' >> /Users/$USER/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv zsh)"
 
-# Install and track the apps installed
-installed_apps=()
+echo -e "${GREEN}Installing item2...${NO_COLOR}"
+brew install --cask iterm2
 
-for app in "${APPLICATIONS[@]}"; do
-        echo -e "${GREEN}Installing $app...${NO_COLOR}"
-        brew install "$app"
-        if [ $? -eq 0 ]; then
-                ininstalled_apps+=("$app")
-        else
-                echo -e "${RED}Failed to install $app.${NO_COLOR}"
-        fi
-done
+echo -e "${GREEN}Installing ohmyzsh...${NO_COLOR}"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-# Create NVM's working directory if it doesn't exit
-if [ ! -d "$HOME/.nvm" ]; then
-        echo -e "${GREEN}Creating NVM directory...${NO_COLOR}"
-        mkdir "$HOME/.nvm"
-fi
+echo -e "${GREEN}Installing powerlevel10k theme...${NO_COLOR}"
+brew install powerlevel10k
+echo "source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme" >>~/.zshrc
 
-# Add the NVM setup to the profile
-echo -e "${GREEN}Configuring NVM in $ZPROFILE_PATH...${NO_COLOR}"
-{
-        echo 'export NVM_DIR="$HOME/.nvm"'
-        echo '[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm'
-        echo '[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion'
-} >> "$ZPROFILE_PATH"
+echo -e "${GREEN}Installing Brave Browser...${NO_COLOR}"
+brew install --cask brave-browser
 
-echo -e "${GREEN}Reloading shell profile...${NO_COLOR}"
-source "$ZPROFILE_PATH"
+echo -e "${GREEN}Installing Discord...${NO_COLOR}"
+brew install --cask discord
 
-# Install latest Node version
-echo -e "${GREEN}Installing Node Latest LTS Version...${NO_COLOR}"
-nvm install --lts
+echo -e "${GREEN}Installing Slack...${NO_COLOR}"
+brew install --cask slack
 
-# Initialize miniconda
-echo -e "${GREEN}Initializing miniconda...${NO_COLOR}"
-conda init "$(basename "${SHELL}")"
+echo -e "${GREEN}Installing PyCharm...${NO_COLOR}"
+brew install --cask pycharm
 
-if [ -z "$github_name" ]; then
-        echo -e "${GREEN}Setting git global user.name...${NO_COLOR}"
-        git config --global user.name "$github_name"
-fi
+echo -e "${GREEN}Installing uv...${NO_COLOR}"
+brew install uv
 
-if [ -z "$github_email" ]; then
-        echo -e "${GREEN}Setting git global user.email...${NO_COLOR}"
-        git config --global user.email "$github_email"
-fi      
+echo -e "${GREEN}Installing Rectangle...${NO_COLOR}"
+brew install --cask rectangle
 
-echo -e "${GREEN}Reloading shell profile...${NO_COLOR}"
-source "$ZPROFILE_PATH"
-        
-echo -e "${GREEN}Cleaning up brew old versions...${NO_COLOR}"
-brew cleanup
+echo -e "${GREEN}Installing Notion...${NO_COLOR}"
+brew install --cask notion
+
+echo -e "${GREEN}Installing Notion Calendar...${NO_COLOR}"
+brew install --cask notion-calendar
+
+echo -e "${GREEN}Installing Postman...${NO_COLOR}"
+brew install --cask postman
 
 echo -e "${GREEN}Installing Docker...${NO_COLOR}"
-curl -Lo Docker.dmg https://desktop.docker.com/mac/main/arm64/Docker.dmg
-sudo hdiutil attach Docker.dmg
-sudo /Volumes/Docker/Docker.app/Contents/MacOS/install
-sudo hdiutil detach /Volumes/Docker
-rm Docker.dmg
-
-if [ ${#installed_apps[@]} -gt 0 ]; then
-    echo -e "${GREEN}The following apps have been successfully installed:${NO_COLOR}"
-    for app in "${installed_apps[@]}"; do
-        echo -e "${GREEN}- $app${NO_COLOR}"
-    done
-else
-    echo -e "${RED}No apps were successfully installed.${NO_COLOR}"
-fi
-        
+brew install --cask docker
