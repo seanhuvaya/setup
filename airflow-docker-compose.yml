@@ -1,7 +1,5 @@
 x-airflow-common: &airflow-common
   image: apache/airflow:3.1.7   # ← change to your desired version (e.g. 2.10.5, 3.0.0, etc.)
-  env_file:
-    - .env                      # optional — keep if you want to use .env
   environment: &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     # Very important — point to your real host DB & Redis
