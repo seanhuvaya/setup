@@ -4,8 +4,8 @@ services:
     container_name: postgres-db
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${PG_USER:-postgres}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-postgres}
     ports:
       - "5432:5432" 
     volumes:
@@ -21,12 +21,12 @@ services:
     container_name: pgadmin-ui
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: sean.ktxdev@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: password     
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-password}     
       PGADMIN_CONFIG_SERVER_MODE: 'False' 
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
     ports:
-      - "5050:80"             # http://localhost:5050
+      - "5050:80"             
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
