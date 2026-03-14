@@ -7,7 +7,7 @@ x-airflow-common: &airflow-common
       postgresql+psycopg2://airflow:airflow@host.docker.internal:5432/airflow
     AIRFLOW__CELERY__RESULT_BACKEND: >-
       db+postgresql://airflow:airflow@host.docker.internal:5432/airflow
-    AIRFLOW__CELERY__BROKER_URL: redis://:@host.docker.internal:6379/0
+    AIRFLOW__CELERY__BROKER_URL: redis://default:verysecretpassword123@host.docker.internal:6379/0
 
     AIRFLOW__CORE__FERNET_KEY: ''               # generate a real one in production
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
@@ -28,6 +28,7 @@ services:
 
   airflow-apiserver:   # ← the new name for webserver in Airflow 3+
     <<: *airflow-common
+    container_name: airflow-apiserver
     command: api-server
     ports:
       - "8080:8080"
@@ -41,6 +42,7 @@ services:
 
   airflow-scheduler:
     <<: *airflow-common
+    container_name: airflow-scheduler
     command: scheduler
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
@@ -52,6 +54,7 @@ services:
 
   airflow-dag-processor:
     <<: *airflow-common
+    container_name: airflow-dag-processor
     command: dag-processor
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type DagProcessorJob --hostname "$${HOSTNAME}"']
@@ -63,6 +66,7 @@ services:
 
   airflow-worker:
     <<: *airflow-common
+    container_name: airflow-worker
     command: celery worker
     healthcheck:
       test:
@@ -79,6 +83,7 @@ services:
 
   airflow-triggerer:
     <<: *airflow-common
+    container_name: airflow-triggerer
     command: triggerer
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"']
@@ -90,6 +95,7 @@ services:
 
   airflow-init:
     <<: *airflow-common
+    container_name: airflow-init
     entrypoint: /bin/bash
     command:
       - -c
@@ -114,6 +120,7 @@ services:
 
   airflow-cli:   # optional — useful for debugging / running airflow commands
     <<: *airflow-common
+    container_name: airflow-cli
     profiles: ["debug"]
     command: bash
     tty: true
