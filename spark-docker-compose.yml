@@ -19,8 +19,9 @@ services:
     depends_on:
       - spark-master
     environment:
-      - SPARK_NO_DAEMONIZE=true
-      - SPARK_MASTER_HOST=spark-master   # optional but helpful
+      - SPARK_LOCAL_IP=0.0.0.0
+      - SPARK_MASTER_HOST=spark-master
+      - SPARK_MASTER_PORT=7077
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077   # ← starts worker, points to master
     volumes:
       - ./data:/opt/spark/data
