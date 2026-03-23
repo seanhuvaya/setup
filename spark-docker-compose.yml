@@ -1,10 +1,10 @@
 services:
   spark-master:
-    image: bitnami/spark:3.5   # or :latest / :4.0 if you prefer newer
+    image: apache/spark:4.0.2   # or more specific: apache/spark:4.0.2-scala2.13-java17-python3-ubuntu
     container_name: spark-master
     ports:
-      - "8080:8080"      # Spark Master UI → http://localhost:8080
-      - "7077:7077"      # Spark master port (this is what you connect to)
+      - "8080:8080"   # Master UI: http://localhost:8080
+      - "7077:7077"   # Submit / connect here
     environment:
       - SPARK_MODE=master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
@@ -12,10 +12,11 @@ services:
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
     volumes:
-      - ./data:/opt/bitnami/spark/data   # optional – shared data dir
+      - ./data:/opt/spark/data   # optional shared data
 
   spark-worker-1:
-    image: bitnami/spark:3.5
+    image: apache/spark:4.0.2
+    container_name: spark-worker-1
     depends_on:
       - spark-master
     environment:
@@ -24,4 +25,6 @@ services:
       - SPARK_WORKER_CORES=2
       - SPARK_WORKER_MEMORY=2g
     volumes:
-      - ./data:/opt/bitnami/spark/data
+      - ./data:/opt/spark/data
+
+# Optional: Add more workers by copying spark-worker-1 and adjusting names/cores/memory
