@@ -1,38 +1,67 @@
 #!/bin/bash
+# =============================================================================
+# Git + SSH Setup Script
+# Usage: ./setup-git.sh "Your Name" your.email@example.com
+# =============================================================================
 
-# Configuration
-EMAIL="$1"
-SSH_KEY_PATH="$HOME/.ssh/github_ed25519"
+set -euo pipefail
 
-if [ -z "$EMAIL" ]; then
-  echo "Usage: $0 your_email@example.com"
-  exit 1
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 \"Your Full Name\" your.email@example.com"
+    echo "Example: $0 \"John Doe\" john.doe@example.com"
+    exit 1
 fi
 
-# Step 1: Generate SSH key if not exists
-if [ -f "$SSH_KEY_PATH" ]; then
-  echo "SSH key already exists at $SSH_KEY_PATH"
+NAME="$1"
+EMAIL="$2"
+
+echo "=== Setting up Git and SSH for ==="
+echo "Name : $NAME"
+echo "Email: $EMAIL"
+echo
+
+# 1. Configure Git globally
+echo "Configuring Git..."
+git config --global user.name "$NAME"
+git config --global user.email "$EMAIL"
+git config --global init.defaultBranch main
+
+echo "Git configured successfully."
+echo
+
+# 2. Create SSH key (Ed25519 - modern & secure)
+KEY_PATH="$HOME/.ssh/github_ed25519"
+
+if [ -f "$KEY_PATH" ]; then
+    echo "SSH key already exists at $KEY_PATH"
+    echo "Skipping key generation."
 else
-  echo "Generating a new SSH key..."
-  ssh-keygen -t ed25519 -C "$EMAIL" -f "$SSH_KEY_PATH" -N ""
+    echo "Generating new Ed25519 SSH key..."
+    ssh-keygen -t ed25519 -C "$EMAIL" -f "$KEY_PATH" -N ""
+    echo "SSH key generated at $KEY_PATH"
 fi
 
-# Step 2: Start SSH agent and add key
-eval "$(ssh-agent -s)"
-ssh-add "$SSH_KEY_PATH"
+echo
 
-# Step 3: Print public key
-echo ""
-echo "🔑 Your public SSH key (copy and add to GitHub):"
-echo ""
-cat "$SSH_KEY_PATH.pub"
-echo ""
-echo "👉 Visit https://github.com/settings/ssh/new to add this key."
+# 3. Copy public key to clipboard (cross-platform)
+PUB_KEY="$KEY_PATH.pub"
 
-# Step 4: Optional GitHub SSH test
-read -p "Do you want to test SSH connection to GitHub now? (y/n): " yn
+if [ ! -f "$PUB_KEY" ]; then
+    echo "Error: Public key not found!"
+    exit 1
+fi
 
-case $yn in
-  [Yy]* ) ssh -T git@github.com ;;
-  * ) echo "SSH test skipped." ;;
-esac
+echo "Copying public key to clipboard..."
+
+# macOS
+pbcopy < "$PUB_KEY"
+echo "✅ Public key copied to clipboard (macOS pbcopy)"
+
+echo
+echo "=== Setup Complete! ==="
+echo
+echo "Next steps:"
+echo "1. Paste the key (already in clipboard) into GitHub / GitLab / Bitbucket → SSH keys"
+echo "2. Test with: ssh -T git@github.com"
+echo
+cat "$PUB_KEY"
