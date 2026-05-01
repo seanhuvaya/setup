@@ -40,6 +40,9 @@ brew install --cask postman
 echo -e "${GREEN}Installing Docker...${NO_COLOR}"
 brew install --cask docker
 
+echo -e "${GREEN}Installing AWS CLI...${NO_COLOR}"
+brew install awscli
+
 echo -e "${GREEN}Installing ohmyzsh...${NO_COLOR}"
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
